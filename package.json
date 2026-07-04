@@ -1,0 +1,18 @@
+{
+  "name": "moronide",
+  "version": "1.0.0",
+  "description": "A sharp browser-based IDE with local folder editing and free Firebase cloud storage.",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "deploy": "firebase deploy",
+    "deploy:hosting": "firebase deploy --only hosting",
+    "deploy:rules": "firebase deploy --only firestore:rules"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "license": "MIT",
+  "private": true
+}

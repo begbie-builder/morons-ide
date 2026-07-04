@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark light" />
+  <title>MoronIDE</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b0b0c'/%3E%3Cpath d='M9 11l-4 5 4 5M23 11l4 5-4 5M19 8l-6 16' stroke='%234c8dff' stroke-width='2' fill='none' stroke-linecap='square'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <!-- Monaco Editor — vendored locally (public/vendor/monaco), no CDN needed. -->
+  <script src="vendor/monaco/vs/loader.js"></script>
+  <script>
+    // Serve Monaco's language web workers from the same origin.
+    var MONACO_BASE = new URL('vendor/monaco/', document.baseURI).href;
+    window.MonacoEnvironment = {
+      getWorkerUrl: function () {
+        return 'data:text/javascript;charset=utf-8,' + encodeURIComponent(
+          "self.MonacoEnvironment = { baseUrl: '" + MONACO_BASE + "' };" +
+          "importScripts('" + MONACO_BASE + "vs/base/worker/workerMain.js');"
+        );
+      }
+    };
+    require.config({ paths: { vs: 'vendor/monaco/vs' } });
+    require(['vs/editor/editor.main'], function () {
+      window.monaco = monaco;
+      window.dispatchEvent(new Event('monaco-ready'));
+    });
+  </script>
+</head>
+<body>
+  <div id="app">
+    <!-- Top bar -->
+    <header id="topbar">
+      <div class="brand">
+        <svg viewBox="0 0 32 32" width="20" height="20" aria-hidden="true">
+          <path d="M9 11l-4 5 4 5M23 11l4 5-4 5M19 8l-6 16" stroke="var(--accent)" stroke-width="2" fill="none" stroke-linecap="square"/>
+        </svg>
+        <span>Moron<b>IDE</b></span>
+      </div>
+      <div class="top-actions">
+        <button class="btn" data-cmd="open-folder" title="Open a local folder (Ctrl+O)">Open Folder</button>
+        <button class="btn" data-cmd="new-file" title="New file (Ctrl+N)">New File</button>
+        <button class="btn" data-cmd="save" title="Save (Ctrl+S)">Save</button>
+        <span class="flex-spacer"></span>
+        <button class="btn" data-cmd="palette" title="Command palette (Ctrl+Shift+P)">Commands</button>
+        <div id="account-chip" class="account-chip" data-cmd="cloud-panel" title="Cloud account">Cloud: off</div>
+      </div>
+    </header>
+
+    <div id="main">
+      <!-- Activity rail -->
+      <nav id="rail">
+        <button class="rail-btn active" data-panel="explorer" title="Explorer">
+          <svg viewBox="0 0 24 24"><path d="M3 5h6l2 2h10v12H3z"/></svg>
+        </button>
+        <button class="rail-btn" data-panel="search" title="Search (Ctrl+Shift+F)">
+          <svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg>
+        </button>
+        <button class="rail-btn" data-panel="cloud" title="Cloud storage">
+          <svg viewBox="0 0 24 24"><path d="M6 18h11a4 4 0 0 0 .5-8 6 6 0 0 0-11.6 1.5A3.5 3.5 0 0 0 6 18z"/></svg>
+        </button>
+        <div class="rail-spacer"></div>
+        <button class="rail-btn" data-panel="settings" title="Settings">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.5 5.5l2 2M16.5 16.5l2 2M18.5 5.5l-2 2M7.5 16.5l-2 2"/></svg>
+        </button>
+      </nav>
+
+      <!-- Sidebar panels -->
+      <aside id="sidebar">
+        <!-- Explorer -->
+        <section class="panel active" data-panel="explorer">
+          <div class="panel-head">
+            <span class="panel-title" id="workspace-name">No Folder Open</span>
+            <div class="panel-tools">
+              <button class="icon-btn" data-cmd="new-file" title="New File"><svg viewBox="0 0 24 24"><path d="M13 3H6v18h12V8zM13 3v5h5"/><path d="M12 12v6M9 15h6"/></svg></button>
+              <button class="icon-btn" data-cmd="new-folder" title="New Folder"><svg viewBox="0 0 24 24"><path d="M3 6h6l2 2h10v11H3z"/><path d="M12 12v5M9.5 14.5h5"/></svg></button>
+              <button class="icon-btn" data-cmd="refresh-tree" title="Refresh"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-1 5"/><path d="M20 4v5h-5"/></svg></button>
+              <button class="icon-btn" data-cmd="collapse-tree" title="Collapse All"><svg viewBox="0 0 24 24"><path d="M4 9l4-4 4 4M4 15l4 4 4-4"/></svg></button>
+            </div>
+          </div>
+          <div id="tree" class="tree" tabindex="0"></div>
+          <div id="explorer-empty" class="panel-empty">
+            <p>No workspace open.</p>
+            <button class="btn wide" data-cmd="open-folder">Open Local Folder</button>
+            <button class="btn wide" data-cmd="cloud-panel">Open Cloud Project</button>
+            <p class="hint">Local folders need a Chromium browser (Chrome, Edge, Brave, Arc). Cloud works everywhere.</p>
+          </div>
+        </section>
+
+        <!-- Search -->
+        <section class="panel" data-panel="search">
+          <div class="panel-head"><span class="panel-title">Find in Files</span></div>
+          <div class="search-box">
+            <input id="search-input" type="text" placeholder="Search text…" autocomplete="off" spellcheck="false" />
+            <label class="check"><input type="checkbox" id="search-case" /> Match case</label>
+          </div>
+          <div id="search-results" class="search-results"></div>
+        </section>
+
+        <!-- Cloud -->
+        <section class="panel" data-panel="cloud">
+          <div class="panel-head"><span class="panel-title">Cloud Storage</span></div>
+          <div id="cloud-panel-body" class="cloud-body"></div>
+        </section>
+
+        <!-- Settings -->
+        <section class="panel" data-panel="settings">
+          <div class="panel-head"><span class="panel-title">Settings</span></div>
+          <div id="settings-body" class="settings-body"></div>
+        </section>
+      </aside>
+
+      <div id="resizer" title="Drag to resize"></div>
+
+      <!-- Editor workspace -->
+      <section id="workspace">
+        <div id="tabs" class="tabs"></div>
+        <div id="editor-host">
+          <div id="editor"></div>
+          <div id="welcome" class="welcome">
+            <div class="welcome-inner">
+              <div class="welcome-logo">
+                <svg viewBox="0 0 32 32" width="52" height="52"><path d="M9 11l-4 5 4 5M23 11l4 5-4 5M19 8l-6 16" stroke="var(--accent)" stroke-width="2" fill="none" stroke-linecap="square"/></svg>
+              </div>
+              <h1>Moron<b>IDE</b></h1>
+              <p class="welcome-sub">A sharp browser IDE. Edit local folders or store code in the cloud.</p>
+              <div class="welcome-actions">
+                <button class="btn primary" data-cmd="open-folder">Open Local Folder</button>
+                <button class="btn" data-cmd="cloud-panel">Use Cloud Storage</button>
+                <button class="btn" data-cmd="new-file">New Untitled File</button>
+              </div>
+              <div class="welcome-keys">
+                <div><kbd>Ctrl</kbd><kbd>O</kbd><span>Open folder</span></div>
+                <div><kbd>Ctrl</kbd><kbd>P</kbd><span>Quick open file</span></div>
+                <div><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>P</kbd><span>Command palette</span></div>
+                <div><kbd>Ctrl</kbd><kbd>S</kbd><span>Save file</span></div>
+                <div><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>F</kbd><span>Find in files</span></div>
+                <div><kbd>Ctrl</kbd><kbd>`</kbd><span>Toggle terminal log</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Status bar -->
+    <footer id="statusbar">
+      <div class="status-left">
+        <span id="status-mode" class="status-item">Local</span>
+        <span id="status-path" class="status-item"></span>
+      </div>
+      <div class="status-right">
+        <span id="status-problems" class="status-item"></span>
+        <span id="status-lang" class="status-item" data-cmd="pick-language" title="Change language">Plain Text</span>
+        <span id="status-pos" class="status-item" data-cmd="goto-line" title="Go to line">Ln 1, Col 1</span>
+        <span id="status-indent" class="status-item">Spaces: 2</span>
+        <span id="status-eol" class="status-item">LF</span>
+        <span id="status-encoding" class="status-item">UTF-8</span>
+      </div>
+    </footer>
+  </div>
+
+  <div id="modal-root"></div>
+  <div id="menu-root"></div>
+  <div id="toast-root"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

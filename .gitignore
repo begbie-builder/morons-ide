@@ -1,0 +1,15 @@
+# Dependencies (none required to run — this project has no build step)
+node_modules/
+
+# Firebase local state & logs
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+*.log
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
