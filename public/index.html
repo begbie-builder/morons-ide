@@ -6,7 +6,27 @@
   <meta name="color-scheme" content="dark light" />
   <title>MoronIDE</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b0b0c'/%3E%3Cpath d='M9 11l-4 5 4 5M23 11l4 5-4 5M19 8l-6 16' stroke='%234c8dff' stroke-width='2' fill='none' stroke-linecap='square'/%3E%3C/svg%3E" />
+
+  <!-- Apply the saved UI style + theme before styles load (avoids a flash). -->
+  <script>
+    (function () {
+      var ui = 'modern', theme = 'dark';
+      try {
+        var s = JSON.parse(localStorage.getItem('moronide.settings') || '{}');
+        if (s.uiStyle) ui = s.uiStyle;
+        if (s.theme) theme = s.theme;
+      } catch (e) {}
+      document.documentElement.setAttribute('data-ui', ui);
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <!-- Third-party design libraries (vendored from npm, no CDN):
+       Open Props design tokens + Fontsource Inter / JetBrains Mono. -->
+  <link rel="stylesheet" href="vendor/openprops/open-props.min.css" />
+  <link rel="stylesheet" href="vendor/fonts/fonts.css" />
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/modern.css" />
 
   <!-- Monaco Editor — vendored locally (public/vendor/monaco), no CDN needed. -->
   <script src="vendor/monaco/vs/loader.js"></script>
@@ -124,7 +144,7 @@
                 <svg viewBox="0 0 32 32" width="52" height="52"><path d="M9 11l-4 5 4 5M23 11l4 5-4 5M19 8l-6 16" stroke="var(--accent)" stroke-width="2" fill="none" stroke-linecap="square"/></svg>
               </div>
               <h1>Moron<b>IDE</b></h1>
-              <p class="welcome-sub">A sharp browser IDE. Edit local folders or store code in the cloud.</p>
+              <p class="welcome-sub">A browser IDE. Edit local folders or store code in the cloud.</p>
               <div class="welcome-actions">
                 <button class="btn primary" data-cmd="open-folder">Open Local Folder</button>
                 <button class="btn" data-cmd="cloud-panel">Use Cloud Storage</button>

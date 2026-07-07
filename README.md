@@ -1,10 +1,18 @@
 # MoronIDE
 
-A sharp, flat, browser-based code editor. Open a local folder and edit files
+A modern browser-based code editor. Open a local folder and edit files
 directly on your disk, or store projects in the cloud on Firebase's free tier —
 reachable from any device. Built on the **Monaco** editor (the engine behind VS
 Code), so it handles ~90 languages with real syntax highlighting, IntelliSense,
 multi-cursor, find/replace, formatting, and more.
+
+Ships with two full skins, switchable in **Settings → UI Style**:
+
+- **Modern** (default) — glassmorphism, gradients, glows, big rounded corners,
+  springy motion, an animated gradient backdrop, and Inter / JetBrains Mono
+  variable fonts.
+- **Legacy** — the original deliberately sharp, flat look: no gradients, no
+  blur, no shadows, no rounded corners. Solid colors and 1px lines only.
 
 > **New here? Read [`SETUP.md`](./SETUP.md) — a step-by-step, assume-nothing guide.**
 
@@ -31,10 +39,10 @@ No build step. No dependencies to install for local use.
   fuzzy).
 - **Find in Files** across the whole workspace (`Ctrl/Cmd+Shift+F`).
 - **Tabs**, dirty-state tracking, unsaved-changes guards, auto-save (optional).
-- **Settings:** theme (dark/light), font size, tab size, word wrap, minimap,
-  line numbers, auto-save, format-on-save.
-- **Design:** deliberately flat — no gradients, no blur, no drop shadows, no glow
-  outlines, no rounded corners. Solid colors and 1px lines only.
+- **Settings:** UI style (Modern/Legacy), theme (dark/light), font size, tab
+  size, word wrap, minimap, line numbers, auto-save, format-on-save.
+- **Design:** two complete skins — Modern (glass, gradients, motion) and Legacy
+  (sharp and flat) — each with dark and light themes.
 
 ## Keyboard shortcuts
 
@@ -58,7 +66,11 @@ find `Ctrl/Cmd+F`, format `Shift+Alt+F`, comment `Ctrl/Cmd+/`, etc).
 ```
 public/                     # the entire web app (this is what gets hosted)
   index.html                # shell + Monaco/Firebase loaders
-  css/styles.css            # flat design system
+  css/styles.css            # base layout + Legacy skin (sharp & flat)
+  css/modern.css            # Modern skin (glass, gradients, motion)
+  vendor/openprops/         # Open Props design tokens (npm: open-props)
+  vendor/fonts/             # Inter + JetBrains Mono variable fonts (Fontsource)
+  vendor/monaco/            # Monaco editor (npm: monaco-editor)
   js/
     app.js                  # orchestration: tree, tabs, editor, palette, search
     editor.js               # Monaco setup + custom sharp themes
@@ -78,9 +90,11 @@ SETUP.md                    # the idiot-proof setup guide
 
 ## Tech notes
 
-- **No bundler.** Monaco is loaded from a CDN via its AMD loader; the Firebase
-  modular SDK is loaded from `gstatic` on demand (only when you use the cloud).
-  App code is plain ES modules. This keeps setup trivial and hackable.
+- **No bundler.** Monaco, the Open Props design tokens, and the variable fonts
+  are vendored locally from npm (no CDN — the editor works offline); the
+  Firebase modular SDK is loaded from `gstatic` on demand (only when you use
+  the cloud). App code is plain ES modules. This keeps setup trivial and
+  hackable.
 - **Firestore data model** is scoped per user (`users/{uid}/...`) so the security
   rules stay a two-liner, and directory listings use a single-field query
   (`parentKey`) so **no composite indexes** need to be created.

@@ -70,6 +70,7 @@ async function boot() {
 
 function applyTheme() {
   document.documentElement.setAttribute('data-theme', getSettings().theme);
+  document.documentElement.setAttribute('data-ui', getSettings().uiStyle);
   dom.main.style.setProperty('--sidebar-w', getSettings().sidebarWidth + 'px');
 }
 
@@ -632,7 +633,10 @@ function wireResizer() {
   r.addEventListener('mousedown', (e) => { dragging = true; e.preventDefault(); document.body.style.cursor = 'col-resize'; });
   window.addEventListener('mousemove', (e) => {
     if (!dragging) return;
-    const w = Math.min(560, Math.max(160, e.clientX - 48));
+    // Measure from the sidebar's actual left edge so the math holds in both
+    // the flush legacy layout and the padded/gapped modern layout.
+    const left = dom.sidebar.getBoundingClientRect().left;
+    const w = Math.min(560, Math.max(160, e.clientX - left));
     dom.main.style.setProperty('--sidebar-w', w + 'px');
   });
   window.addEventListener('mouseup', () => {
@@ -707,6 +711,7 @@ const COMMANDS = () => [
   { label: 'Toggle Word Wrap', run: () => setSetting('wordWrap', !getSettings().wordWrap) },
   { label: 'Toggle Minimap', run: () => setSetting('minimap', !getSettings().minimap) },
   { label: 'Toggle Theme (Dark/Light)', run: () => runCommand('toggle-theme') },
+  { label: 'Toggle UI Style (Modern/Legacy)', run: () => setSetting('uiStyle', getSettings().uiStyle === 'legacy' ? 'modern' : 'legacy') },
   { label: 'Toggle Sidebar', kbd: 'Ctrl B', run: () => toggleSidebar() },
   { label: 'Cloud Storage Panel', run: () => showPanel('cloud') },
   { label: 'Settings', run: () => showPanel('settings') },
@@ -867,6 +872,10 @@ function renderSettingsPanel() {
     body.append(wrap);
   };
 
+  sel('UI Style', 'uiStyle', [
+    { value: 'modern', label: 'Modern' },
+    { value: 'legacy', label: 'Legacy' },
+  ], 'Modern: glass, gradients, rounded. Legacy: the original sharp flat look.');
   sel('Theme', 'theme', [{ value: 'dark', label: 'Dark' }, { value: 'light', label: 'Light' }]);
   num('Font Size', 'fontSize', 8, 40);
   sel('Tab Size', 'tabSize', [{ value: 2, label: '2 spaces' }, { value: 4, label: '4 spaces' }, { value: 8, label: '8 spaces' }]);

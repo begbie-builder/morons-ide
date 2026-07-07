@@ -1,7 +1,10 @@
 /* ============================================================
-   MoronIDE — sharp, flat design system.
-   Rules: no gradients, no blur, no box-shadows, no glow outlines,
-   no rounded corners. Solid colors and 1px borders only.
+   MoronIDE — base layout + the "Legacy" skin (sharp & flat).
+   Legacy rules: no gradients, no blur, no box-shadows, no glow
+   outlines, no rounded corners. Solid colors and 1px borders only.
+   The default "Modern" skin (css/modern.css) layers glass,
+   gradients and motion on top when html[data-ui="modern"] is set;
+   pick between them in Settings → UI Style.
    ============================================================ */
 
 :root {

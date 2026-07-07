@@ -3,6 +3,7 @@
 const KEY = 'moronide.settings';
 
 const DEFAULTS = {
+  uiStyle: 'modern',      // modern (glass/gradients) | legacy (sharp/flat)
   theme: 'dark',          // dark | light
   fontSize: 13,
   tabSize: 2,

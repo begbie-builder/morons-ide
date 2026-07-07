@@ -81,6 +81,85 @@ function defineThemes(monaco) {
       'widget.shadow': '#00000000',
     },
   });
+
+  // Modern skin themes: violet/cyan/emerald palette, softer widgets.
+  monaco.editor.defineTheme('moron-modern-dark', {
+    base: 'vs-dark',
+    inherit: true,
+    rules: [
+      { token: '', foreground: 'e9ebf8', background: '10121d' },
+      { token: 'comment', foreground: '5b6180', fontStyle: 'italic' },
+      { token: 'keyword', foreground: 'a08bff' },
+      { token: 'number', foreground: 'f487c8' },
+      { token: 'string', foreground: '4fdcb2' },
+      { token: 'type', foreground: '5fd8f0' },
+      { token: 'function', foreground: 'ffc46b' },
+      { token: 'variable', foreground: 'e9ebf8' },
+      { token: 'delimiter', foreground: 'a2a7c3' },
+    ],
+    colors: {
+      'editor.background': '#10121d',
+      'editor.foreground': '#e9ebf8',
+      'editorLineNumber.foreground': '#3b4059',
+      'editorLineNumber.activeForeground': '#a2a7c3',
+      'editorCursor.foreground': '#a08bff',
+      'editor.selectionBackground': '#3c3568',
+      'editor.lineHighlightBackground': '#161929',
+      'editor.lineHighlightBorder': '#00000000',
+      'editorIndentGuide.background1': '#1d2033',
+      'editorIndentGuide.activeBackground1': '#2e3350',
+      'editorWidget.background': '#171928',
+      'editorWidget.border': '#2e3350',
+      'editorSuggestWidget.background': '#171928',
+      'editorSuggestWidget.border': '#2e3350',
+      'editorSuggestWidget.selectedBackground': '#2e3350',
+      'editorHoverWidget.background': '#171928',
+      'editorHoverWidget.border': '#2e3350',
+      'editorGutter.background': '#10121d',
+      'minimap.background': '#10121d',
+      'scrollbarSlider.background': '#2e335080',
+      'scrollbarSlider.hoverBackground': '#3c4166',
+      'editorBracketMatch.background': '#00000000',
+      'editorBracketMatch.border': '#a08bff',
+      'input.background': '#0c0e17',
+      'input.border': '#2e3350',
+      'focusBorder': '#00000000',
+    },
+  });
+
+  monaco.editor.defineTheme('moron-modern-light', {
+    base: 'vs',
+    inherit: true,
+    rules: [
+      { token: 'comment', foreground: '8b90ad', fontStyle: 'italic' },
+      { token: 'keyword', foreground: '6d5cff' },
+      { token: 'number', foreground: 'd23f8f' },
+      { token: 'string', foreground: '0d9e75' },
+      { token: 'type', foreground: '0294b3' },
+      { token: 'function', foreground: 'b06a00' },
+    ],
+    colors: {
+      'editor.background': '#ffffff',
+      'editor.foreground': '#1b1d31',
+      'editorLineNumber.foreground': '#c6c9dd',
+      'editorCursor.foreground': '#6d5cff',
+      'editor.selectionBackground': '#ded8ff',
+      'editor.lineHighlightBackground': '#f5f5fd',
+      'editor.lineHighlightBorder': '#00000000',
+      'focusBorder': '#00000000',
+    },
+  });
+}
+
+function pickTheme(s) {
+  const modern = s.uiStyle !== 'legacy';
+  if (s.theme === 'light') return modern ? 'moron-modern-light' : 'moron-light';
+  return modern ? 'moron-modern-dark' : 'moron-dark';
+}
+
+function pickFontFamily(s) {
+  const legacyMono = 'ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Consolas, monospace';
+  return s.uiStyle !== 'legacy' ? `'JetBrains Mono Variable', ${legacyMono}` : legacyMono;
 }
 
 export async function initEditor(host) {
@@ -89,9 +168,9 @@ export async function initEditor(host) {
   const s = getSettings();
   editor = monaco.editor.create(host, {
     model: null,
-    theme: s.theme === 'light' ? 'moron-light' : 'moron-dark',
+    theme: pickTheme(s),
     fontSize: s.fontSize,
-    fontFamily: 'ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Consolas, monospace',
+    fontFamily: pickFontFamily(s),
     fontLigatures: true,
     tabSize: s.tabSize,
     wordWrap: s.wordWrap ? 'on' : 'off',
@@ -166,11 +245,12 @@ export function applyEditorSettings() {
   const s = getSettings();
   editor.updateOptions({
     fontSize: s.fontSize,
+    fontFamily: pickFontFamily(s),
     wordWrap: s.wordWrap ? 'on' : 'off',
     minimap: { enabled: s.minimap },
     lineNumbers: s.lineNumbers ? 'on' : 'off',
     tabSize: s.tabSize,
   });
   for (const { model } of models.values()) model.updateOptions({ tabSize: s.tabSize });
-  window.monaco.editor.setTheme(s.theme === 'light' ? 'moron-light' : 'moron-dark');
+  window.monaco.editor.setTheme(pickTheme(s));
 }
